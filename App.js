@@ -6,25 +6,26 @@ import ClasesStack from './src/navigation/ClasesStack';
 import {color} from './src/theme';
 
 const temaNavegacion = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: color.fondo,
-    primary: color.primario,
-    text: color.texto,
-    border: color.border,
-  },
+    ...DefaultTheme,
+    colors: {
+        ...DefaultTheme.colors,
+        background: color.fondo,
+        primary: color.primario,
+        text: color.texto,
+        border: color.border,
+    },
 };
 
 export default function App() {
-  return (
-      <SafeAreaProvider>
-        <NavigationContainer theme={temaNavegacion}>
-          <ClasesStack />
-        </NavigationContainer>
-        <StatusBar style="dark" />
-      </SafeAreaProvider>
+    return (
+        <SafeAreaProvider>
+            <NavigationContainer theme={temaNavegacion}>
+                <ClasesStack />
+            </NavigationContainer>
+            <StatusBar style="dark" />
+        </SafeAreaProvider>
 
 
-  );
+    );
 }
+
