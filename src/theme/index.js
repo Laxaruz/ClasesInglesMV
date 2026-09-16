@@ -3,10 +3,12 @@ import { Platform } from 'react-native';
 
 
 export const color = {
-  fondo: "#978989",
+  fondo: "#ffffff",
   superficie: "#dbc9c9",
-  primario: "#9f424242",
+  primario: "rgb(230 219 219)",
   texto: "#080808",
+  textoSecundario: "#080808",
+  textoTerciario: "#080808",
   border: "#CCCCCC",
   primarioSuave: "#111010",
   textoSuave: "#090909",
