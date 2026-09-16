@@ -5,11 +5,39 @@ import { Ionicons } from '@expo/vector-icons';
 import useResponsive from '../hooks/useResponsive';
 import { color, spacing, typography, radius } from '../theme';
 import { formatearPrecio } from '../data/clases';
+import BotonReserva from '../components/BotonReserva';
 
 export default function DetalleClaseScreen({ route, navigation }) {
     const insets = useSafeAreaInsets();
     const { clase } = route.params;
     const { isTablet } = useResponsive();
+    const [cuposDisponibles, setCuposDisponibles] = useState(clase.cupos);
+
+
+    const handleReservar = () => {
+        if (cuposDisponibles <= 0) {
+            Alert.alert('Sin cupos', 'Lo sentimos, no hay cupos disponibles para esta clase.');
+            return;
+        }
+
+        Alert.alert(
+            'Confirmar Reserva',
+            `¿Deseas reservar la clase de "${clase.titulo}" con ${clase.profesor.nombre} por ${formatearPrecio(clase.precio)}?`,
+            [
+                { text: 'Cancelar', style: 'cancel' },
+                {
+                    text: 'Confirmar',
+                    onPress: () => {
+                        // Reducimos en 1 el cupo disponible
+                        setCuposDisponibles((prevCupos) => prevCupos - 1);
+                        Alert.alert('¡Reserva Exitosa!', 'Tu cupo para la clase ha sido reservado.');
+                    },
+                },
+            ]
+        );
+    };
+
+
 
     useLayoutEffect(() => {
         navigation.setOptions({ title: clase.titulo });
@@ -37,7 +65,7 @@ export default function DetalleClaseScreen({ route, navigation }) {
                     </View>
 
                     <View style={styles.dato}>
-                        <Text style={styles.datoValor}>{clase.cupos}</Text>
+                        <Text style={styles.datoValor}>{cuposDisponibles}</Text>
                         <Text style={styles.datoLabel}>Cupos</Text>
                     </View>
 
@@ -66,6 +94,19 @@ export default function DetalleClaseScreen({ route, navigation }) {
 
 
             </ScrollView>
+            <View style={[styles.barra, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
+                <View style={styles.barraInfo}>
+                    <Text style={styles.datoLabel}>Total a pagar</Text>
+                    <Text style={styles.precio}>{formatearPrecio(clase.precio)}</Text>
+                </View>
+
+                <BotonReserva
+                    titulo={cuposDisponibles > 0 ? "Reservar ahora" : "Agotado"}
+                    onPress={handleReservar}
+                    deshabilitado={cuposDisponibles <= 0}
+                    style={{ flex: 1 }}
+                />
+            </View>
         </View>
     );
 
@@ -153,11 +194,16 @@ const styles = StyleSheet.create({
         bottom: 0,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
         backgroundColor: color.superficie,
         borderTopWidth: 1,
         borderTopColor: color.borde,
-        paddingVertical: spacing.lg,
-        paddingTop: spacing.lg,
+        paddingHorizontal: spacing.lg,
+        paddingTop: spacing.md,
+        gap: spacing.md,
+    },
+    barraInfo: {
+        justifyContent: 'center',
     },
 
     precio: {
@@ -165,4 +211,5 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         color: color.primario,
     },
+
 });

@@ -4,15 +4,15 @@ import { Platform } from 'react-native';
 
 export const color = {
   fondo: "#ffffff",
-  superficie: "#dbc9c9",
-  primario: "rgb(230 219 219)",
+  superficie: "#ffffff",
+  primario: "rgb(16 16 16)",
   texto: "#080808",
   textoSecundario: "#080808",
   textoTerciario: "#080808",
-  border: "#CCCCCC",
-  primarioSuave: "#111010",
+  border: "#1b8fba",
+  primarioSuave: "#ffffff",
   textoSuave: "#090909",
-  borde: "#f7f1f1",
+  borde: "#1b8fba",
 
 
 };
