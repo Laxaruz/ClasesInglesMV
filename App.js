@@ -2,6 +2,7 @@ import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {ReservaProvider} from "./src/contexts/ReservasContext";
 import ClasesStack from './src/navigation/ClasesStack';
 import {color} from './src/theme';
 
@@ -19,10 +20,12 @@ const temaNavegacion = {
 export default function App() {
     return (
         <SafeAreaProvider>
-            <NavigationContainer theme={temaNavegacion}>
-                <ClasesStack />
-            </NavigationContainer>
-            <StatusBar style="dark" />
+            <ReservaProvider>
+                <NavigationContainer theme={temaNavegacion}>
+                    <StatusBar style="dark" />
+                    <ClasesStack/>
+                </NavigationContainer>
+            </ReservaProvider>
         </SafeAreaProvider>
 
 

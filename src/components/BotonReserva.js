@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { color, spacing, radius, typography } from '../theme';
+import { color, spacing, radius, typography, sombra } from '../theme';
 
 export default function BotonReserva({
                                          titulo = 'Reservar clase',
