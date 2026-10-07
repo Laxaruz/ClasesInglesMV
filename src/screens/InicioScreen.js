@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
 import ClasesStack from '../navigation/ClasesStack';
+import PerfilScreen from './PerfilScreen';
 import { color, typography } from '../theme';
 
 const Tab = createBottomTabNavigator();
@@ -18,10 +19,6 @@ function PantallaTemporal({ titulo }) {
 
 function ReservasScreen() {
     return <PantallaTemporal titulo="Reservas" />;
-}
-
-function PerfilScreen() {
-    return <PantallaTemporal titulo="Perfil" />;
 }
 
 export default function InicioScreen() {
