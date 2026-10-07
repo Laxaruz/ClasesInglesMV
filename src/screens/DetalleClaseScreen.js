@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useLayoutEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, Alert, Image } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Alert, Image, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import useResponsive from '../hooks/useResponsive';
@@ -12,6 +12,7 @@ export default function DetalleClaseScreen({ route, navigation }) {
     const { clase } = route.params;
     const { isTablet } = useResponsive();
     const [cuposDisponibles, setCuposDisponibles] = useState(clase.cupos);
+    const [horarioSeleccionado, setHorarioSeleccionado] = useState(null);
 
 
     const handleReservar = () => {
@@ -81,11 +82,18 @@ export default function DetalleClaseScreen({ route, navigation }) {
                 <Text style={typography.subtitulo}>Horarios disponibles</Text>
 
                 {clase.horarios.map((horario) => (
-                    <View key={horario} style={styles.horario}>
-                        <Ionicons name="time-outline" size={16} color={color.texto} />
-                        <Text style={styles.descripcion}>{horario}</Text>
-                    </View>
-                ))}
+                        <Pressable
+                            key={horario}
+                            onPress={() => setHorarioSeleccionado(horario)}
+                            style={[
+                                styles.horario,
+                                horarioSeleccionado === horario && styles.horarioSeleccionado
+                            ]}
+                        >
+                            <Ionicons name="time-outline" size={16} color={color.texto} />
+                            <Text style={styles.descripcion}>{horario}</Text>
+                        </Pressable>
+                    ))}
 
 
 
@@ -184,6 +192,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: spacing.sm,
         paddingVertical: spacing.xs,
+    },
+    horarioSeleccionado: {
+        backgroundColor: color.primarioSuave,
+        borderRadius: radius.md,
+        paddingHorizontal: spacing.sm,
     },
 
 

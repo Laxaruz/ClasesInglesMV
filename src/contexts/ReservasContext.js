@@ -59,9 +59,9 @@ export function ReservaProvider({children}) {
         return resultados;
     },[]); //cierra callback
 
-    const valor = useMemo (
-        () => {reservas,cargando,agregarReserva},[reservas,cargando,agregarReserva]
-
+    const valor = useMemo(
+        () => ({ reservas, cargando, agregarReserva }),
+        [reservas, cargando, agregarReserva]
     );
     return <ReservaContext.Provider value={valor}>{children} </ReservaContext.Provider>
 }//cierre de funcion provider
