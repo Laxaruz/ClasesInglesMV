@@ -90,7 +90,7 @@ export function ReservaProvider({children}) {
             id: clase.id + '-' + horario,
             titulo: clase.titulo,
             nivel: clase.nivel,
-            profesor: clase.profesor.nombre + '-' + clase.profesor.apellido,
+            profesor: clase.profesor.nombre,
             precio: clase.precio,
             horario,
             duracion: clase.duracion,
@@ -135,9 +135,21 @@ export function ReservaProvider({children}) {
         };
     }, [reservas]);
 
+    const cancelarReserva = useCallback((idReserva) => {
+        setReservas((previas) =>
+            previas.filter((reserva) => reserva.id !== idReserva)
+        );
+    }, []);
+
     const valor = useMemo(
-        () => ({ reservas, cargando, agregarReserva }),
-        [reservas, cargando, agregarReserva]
+        () => ({
+            reservas,
+            cargando,
+            agregarReserva,
+            cancelarReserva
+        }),
+        [reservas, cargando, agregarReserva, cancelarReserva]
+
     );
     return <ReservaContext.Provider value={valor}>{children}</ReservaContext.Provider>
 }//cierre de funcion provider

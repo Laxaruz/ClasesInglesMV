@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Alert, Pressable } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import useReserva from '../hooks/useReserva';
@@ -18,7 +18,25 @@ function PantallaTemporal({ titulo }) {
 }
 
 function ReservasScreen() {
-    const { reservas, cargando } = useReserva();
+    const { reservas, cargando, cancelarReserva } = useReserva();
+
+    const confirmarCancelacion = (reserva) => {
+        Alert.alert(
+            'Cancelar reserva',
+            `¿Estás seguro de que deseas cancelar "${reserva.titulo}"?`,
+            [
+                {
+                    text: 'Volver',
+                    style: 'cancel'
+                },
+                {
+                    text: 'Sí, cancelar',
+                    style: 'destructive',
+                    onPress: () => cancelarReserva(reserva.id)
+                }
+            ]
+        );
+    };
 
     if (cargando) {
         return (
@@ -47,6 +65,7 @@ function ReservasScreen() {
             </Text>
 
             <FlatList
+                style={styles.listaReservas}
                 data={reservas}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
@@ -95,6 +114,14 @@ function ReservasScreen() {
                         <Text style={styles.precioReserva}>
                             ${item.precio.toLocaleString('es-CO')} COP
                         </Text>
+                        <Pressable
+                            style={styles.botonCancelar}
+                            onPress={() => confirmarCancelacion(item)}
+                        >
+                            <Text style={styles.textoBotonCancelar}>
+                                Cancelar reserva
+                            </Text>
+                        </Pressable>
                     </View>
                 )}
             />
@@ -146,6 +173,10 @@ const styles = StyleSheet.create({
         paddingTop: 40,
         backgroundColor: color.fondo,
     },
+    listaReservas: {
+        width: '100%',
+        flex: 1,
+    },
 
     tarjetaReserva: {
         width: '90%',
@@ -184,5 +215,19 @@ const styles = StyleSheet.create({
         fontSize: 17,
         fontWeight: '700',
         marginTop: 8,
+    },
+    botonCancelar: {
+        marginTop: 16,
+        paddingVertical: 10,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#D32F2F',
+        borderRadius: 8,
+    },
+
+    textoBotonCancelar: {
+        color: '#D32F2F',
+        fontSize: 14,
+        fontWeight: '600',
     },
 });
