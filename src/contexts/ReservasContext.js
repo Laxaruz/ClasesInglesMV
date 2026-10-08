@@ -38,9 +38,9 @@ export function ReservaProvider({children}) {
         );
     },[reservas,cargando]); //matriz de depdencia vacia para que solo se ejecute una vez [], aqui le pedimos en reservas, cargando
 
-    const agregarReserva = useCallback((clase,horario) => {
-        const nueva ={
-            id: clase.id + '-' + horario, //para que sea unico
+    const agregarReserva = useCallback((clase, horario) => {
+        const nueva = {
+            id: clase.id + '-' + horario,
             titulo: clase.titulo,
             nivel: clase.nivel,
             profesor: clase.profesor.nombre + '-' + clase.profesor.apellido,
@@ -48,20 +48,26 @@ export function ReservaProvider({children}) {
             horario,
             creadaEn: new Date().toISOString()
         };
-        let resultados = {ok: true};
-        setReservas((previa)=>{
-            if (previa.some((r)=> r.id === nueva.id)){
-                resultados = {ok:false, mensaje: 'data duplicada'}
-                return previa;
-            }
-            return [nueva, ...previa];
-        });
-        return resultados;
-    },[]); //cierra callback
+
+        const existe = reservas.some((r) => r.id === nueva.id);
+
+        if (existe) {
+            return {
+                ok: false,
+                mensaje: 'Ya tienes una reserva para esta clase y horario.'
+            };
+        }
+
+        setReservas((previa) => [nueva, ...previa]);
+
+        return {
+            ok: true
+        };
+    }, [reservas]);
 
     const valor = useMemo(
         () => ({ reservas, cargando, agregarReserva }),
         [reservas, cargando, agregarReserva]
     );
-    return <ReservaContext.Provider value={valor}>{children} </ReservaContext.Provider>
+    return <ReservaContext.Provider value={valor}>{children}</ReservaContext.Provider>
 }//cierre de funcion provider

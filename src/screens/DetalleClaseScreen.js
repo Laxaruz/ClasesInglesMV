@@ -6,20 +6,32 @@ import useResponsive from '../hooks/useResponsive';
 import { color, spacing, typography, radius } from '../theme';
 import { formatearPrecio } from '../data/clases';
 import BotonReserva from '../components/BotonReserva';
+import useReserva from '../hooks/useReserva';
 
 export default function DetalleClaseScreen({ route, navigation }) {
     const insets = useSafeAreaInsets();
     const { clase } = route.params;
     const { isTablet } = useResponsive();
+    const { agregarReserva } = useReserva();
     const [cuposDisponibles, setCuposDisponibles] = useState(clase.cupos);
     const [horarioSeleccionado, setHorarioSeleccionado] = useState(null);
 
 
     const handleReservar = () => {
+        if (!horarioSeleccionado) {
+            Alert.alert(
+                'Selecciona un horario',
+                'Debes seleccionar un horario antes de reservar.'
+            );
+            return;
+        }
+
         if (cuposDisponibles <= 0) {
             Alert.alert('Sin cupos', 'Lo sentimos, no hay cupos disponibles para esta clase.');
             return;
         }
+
+
 
         Alert.alert(
             'Confirmar Reserva',
@@ -29,9 +41,22 @@ export default function DetalleClaseScreen({ route, navigation }) {
                 {
                     text: 'Confirmar',
                     onPress: () => {
-                        // Reducimos en 1 el cupo disponible
+                        const resultado = agregarReserva(clase, horarioSeleccionado);
+
+                        if (!resultado.ok) {
+                            Alert.alert(
+                                'No se pudo reservar',
+                                resultado.mensaje || 'No fue posible realizar la reserva.'
+                            );
+                            return;
+                        }
+
                         setCuposDisponibles((prevCupos) => prevCupos - 1);
-                        Alert.alert('¡Reserva Exitosa!', 'Tu cupo para la clase ha sido reservado.');
+
+                        Alert.alert(
+                            '¡Reserva Exitosa!',
+                            `Tu cupo para "${clase.titulo}" el ${horarioSeleccionado} ha sido reservado.`
+                        );
                     },
                 },
             ]
