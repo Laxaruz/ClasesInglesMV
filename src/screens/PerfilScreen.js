@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
-import {
-    Alert,
-    View,
-    Text,
-    Pressable,
-    StyleSheet,
-    ScrollView,
-    TextInput,
-    Image,
-} from 'react-native';
+import {Alert, View, Text, Pressable, StyleSheet, ScrollView, TextInput, Image,} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { color, radius, spacing, typography } from '../theme';
 
@@ -20,9 +11,16 @@ export default function PerfilScreen() {
     const [correo, setCorreo] = useState('');
     const [telefono, setTelefono] = useState('');
     const [foto, setFoto] = useState(null);
+    const [editandoPerfil, setEditandoPerfil] = useState(false);
 
     const hayPerfil = perfiles.length > 0;
     const perfil = perfiles[0];
+
+    const iniciarEdicionDePerfil = () => {
+        setCorreo(perfil.correo);
+        setTelefono(perfil.telefono);
+        setEditandoPerfil(true);
+    }
 
     const seleccionarFoto = async () => {
         const resultado = await ImagePicker.launchImageLibraryAsync({
@@ -53,21 +51,59 @@ export default function PerfilScreen() {
                 <ScrollView
                     style={styles.formulario}
                     contentContainerStyle={styles.contenido}
+                    keyboardShouldPersistTaps={"handled"}
                 >
-                    <Image
-                        source={{ uri: perfil.foto }}
-                        style={styles.foto}
-                        resizeMode="cover"
-                    />
-                    <Text style={[typography.subtitulo, styles.titulo]}>
-                        {perfil.nombre} {perfil.apellido}
-                    </Text>
-                    <Text style={[typography.cuerpo, styles.detalle]}>
-                        Correo: {perfil.correo}
-                    </Text>
-                    <Text style={[typography.cuerpo, styles.detalle]}>
-                        Telefono: {perfil.telefono}
-                    </Text>
+                    {editandoPerfil ? (
+                        <View>
+                            <Text style={[typography.subtitulo, styles.titulo]}>Editar datos del perfil</Text>
+                            <Text style={[typography.cuerpo, styles.etiqueta]}>Correo</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={correo}
+                                onChangeText={setCorreo}
+                                keyboardType={'email-address'}
+                                autoCapitalize="none"
+                                />
+
+                            <Text style={[typography.cuerpo, styles.etiqueta]}>Telefono</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={telefono}
+                                onChangeText={setTelefono}
+                                keyboardType={'phone-pad'}
+                            />
+
+                            <Pressable
+                                style={styles.boton}
+                                onPress={() => setEditandoPerfil(false)}
+                                >
+                                    <Text style = {styles.textoBoton}>Cancelar</Text>
+                            </Pressable>
+                        </View>
+                    ) : (
+                        <View>
+                            <Image
+                                source={{ uri: perfil.foto }}
+                                style={styles.foto}
+                                resizeMode="cover"
+                            />
+                            <Text style={[typography.subtitulo, styles.titulo]}>
+                                {perfil.nombre} {perfil.apellido}
+                            </Text>
+                            <Text style={[typography.cuerpo, styles.detalle]}>
+                                Correo: {perfil.correo}
+                            </Text>
+                            <Text style={[typography.cuerpo, styles.detalle]}>
+                                Telefono: {perfil.telefono}
+                            </Text>
+                            <Pressable
+                                style={styles.boton}
+                                onPress={iniciarEdicionDePerfil}
+                                >
+                                    <Text style = {styles.textoBoton}>Editar Perfil</Text>
+                            </Pressable>
+                        </View>
+                    )}
                 </ScrollView>
             ) : mostrarFormulario ? (
                 <ScrollView
