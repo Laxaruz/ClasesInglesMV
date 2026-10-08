@@ -3,6 +3,53 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CLAVE_RESERVAS = '@reservas_ingles';
 
+function analizarHorario(horario) {
+    const partes = horario.split(' ');
+    const dia = partes[0];
+    const hora = partes[1];
+    const periodo = partes[2];
+
+    const [horas, minutos] = hora.split(':').map(Number);
+
+    let horas24 = horas;
+
+    if (periodo === 'p.m.' && horas !== 12) {
+        horas24 += 12;
+    }
+
+    if (periodo === 'a.m.' && horas === 12) {
+        horas24 = 0;
+    }
+
+    return {
+        dia,
+        minutosInicio: horas24 * 60 + minutos
+    };
+}
+function obtenerIntervalo(horario, duracion) {
+    const datosHorario = analizarHorario(horario);
+
+    return {
+        dia: datosHorario.dia,
+        inicio: datosHorario.minutosInicio,
+        fin: datosHorario.minutosInicio + duracion
+    };
+}
+
+function hayCruce(intervaloNuevo, intervaloExistente) {
+    if (intervaloNuevo.dia !== intervaloExistente.dia) {
+        return false;
+    }
+
+    return (
+        intervaloNuevo.inicio < intervaloExistente.fin &&
+        intervaloNuevo.fin > intervaloExistente.inicio
+    );
+}
+
+//NUEVAS FUNCIONES, ESTAS FUNCIONES SON PARA VALIDAR QUE NO SE PUEDAN RESERVAR CLASES QUE SE CRUCEN EN HORARIO
+
+
 export const ReservaContext = createContext(null);
 
 export function ReservaProvider({children}) {
@@ -46,8 +93,10 @@ export function ReservaProvider({children}) {
             profesor: clase.profesor.nombre + '-' + clase.profesor.apellido,
             precio: clase.precio,
             horario,
+            duracion: clase.duracion,
             creadaEn: new Date().toISOString()
         };
+
 
         const existe = reservas.some((r) => r.id === nueva.id);
 
@@ -55,6 +104,27 @@ export function ReservaProvider({children}) {
             return {
                 ok: false,
                 mensaje: 'Ya tienes una reserva para esta clase y horario.'
+            };
+        }
+
+        const intervaloNuevo = obtenerIntervalo(
+            horario,
+            clase.duracion
+        );
+
+        const hayReservaCruzada = reservas.some((r) => {
+            const intervaloExistente = obtenerIntervalo(
+                r.horario,
+                r.duracion
+            );
+
+            return hayCruce(intervaloNuevo, intervaloExistente);
+        });
+
+        if (hayReservaCruzada) {
+            return {
+                ok: false,
+                mensaje: 'Ya tienes una reserva que se cruza con este horario.'
             };
         }
 
@@ -71,3 +141,4 @@ export function ReservaProvider({children}) {
     );
     return <ReservaContext.Provider value={valor}>{children}</ReservaContext.Provider>
 }//cierre de funcion provider
+
