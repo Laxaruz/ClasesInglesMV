@@ -22,6 +22,20 @@ export default function PerfilScreen() {
         setEditandoPerfil(true);
     }
 
+    const guardarCambiosPerfil = () => {
+        const perfilActualizado = {
+            nombre: perfil.nombre,
+            apellido: perfil.apellido,
+            correo: correo,
+            telefono: telefono,
+            foto: perfil.foto,
+        };
+
+        setPerfiles([perfilActualizado]);
+        setEditandoPerfil(false);
+    }
+
+
     const seleccionarFoto = async () => {
         const resultado = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
@@ -72,6 +86,13 @@ export default function PerfilScreen() {
                                 onChangeText={setTelefono}
                                 keyboardType={'phone-pad'}
                             />
+
+                            <Pressable
+                                style={styles.boton}
+                                onPress={guardarCambiosPerfil}
+                                >
+                                    <Text style={styles.textoBoton}>Guardar cambios</Text>
+                            </Pressable>
 
                             <Pressable
                                 style={styles.boton}
