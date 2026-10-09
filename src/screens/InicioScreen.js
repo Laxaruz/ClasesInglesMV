@@ -43,7 +43,7 @@ function ReservasScreen() {
 
     if (reservas.length === 0) {
         return (
-            <View style={styles.pantalla}>
+            <View style={styles.pantallaVacia}>
                 <Text style={typography.subtitulo}>
                     No tienes reservas
                 </Text>
@@ -160,6 +160,12 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         paddingTop: 40,
+        backgroundColor: color.fondo,
+    },
+    pantallaVacia: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: color.fondo,
     },
     listaReservas: {
