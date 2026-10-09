@@ -3,6 +3,55 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CLAVE_RESERVAS = '@reservas_ingles';
 
+function analizarHorario(horario) {
+    const partes = horario.split(' ');
+    const dia = partes[0];
+    const hora = partes[1];
+    const periodo = partes[2];
+
+    const [horas, minutos] = hora.split(':').map(Number);
+
+    let horas24 = horas;
+
+    if (periodo === 'p.m.' && horas !== 12) {
+        horas24 += 12;
+    }
+
+    if (periodo === 'a.m.' && horas === 12) {
+        horas24 = 0;
+    }
+
+    return {
+        dia,
+        minutosInicio: horas24 * 60 + minutos
+    };
+}
+function obtenerIntervalo(horario, duracion) {
+    const datosHorario = analizarHorario(horario);
+
+    return {
+        dia: datosHorario.dia,
+        inicio: datosHorario.minutosInicio,
+        fin: datosHorario.minutosInicio + duracion
+    };
+}
+
+function hayCruce(intervaloNuevo, intervaloExistente) {
+    if (intervaloNuevo.dia !== intervaloExistente.dia) {
+        return false;
+    }
+
+    return (
+        intervaloNuevo.inicio < intervaloExistente.fin &&
+        intervaloNuevo.fin > intervaloExistente.inicio
+    );
+}
+
+//NUEVAS FUNCIONES, ESTAS FUNCIONES SON PARA VALIDAR QUE NO SE PUEDAN RESERVAR CLASES QUE SE CRUCEN EN HORARIO
+function obtenerIdClaseReserva(reserva) {
+    return String(reserva.claseId ?? reserva.id.split('-')[0]);
+}
+
 export const ReservaContext = createContext(null);
 
 export function ReservaProvider({children}) {
@@ -38,30 +87,84 @@ export function ReservaProvider({children}) {
         );
     },[reservas,cargando]); //matriz de depdencia vacia para que solo se ejecute una vez [], aqui le pedimos en reservas, cargando
 
-    const agregarReserva = useCallback((clase,horario) => {
-        const nueva ={
-            id: clase.id + '-' + horario, //para que sea unico
+    const agregarReserva = useCallback((clase, horario) => {
+        const nueva = {
+            id: clase.id + '-' + horario,
+            claseId: clase.id,
             titulo: clase.titulo,
             nivel: clase.nivel,
-            profesor: clase.profesor.nombre + '-' + clase.profesor.apellido,
+            profesor: clase.profesor.nombre,
             precio: clase.precio,
             horario,
+            duracion: clase.duracion,
             creadaEn: new Date().toISOString()
         };
-        let resultados = {ok: true};
-        setReservas((previa)=>{
-            if (previa.some((r)=> r.id === nueva.id)){
-                resultados = {ok:false, mensaje: 'data duplicada'}
-                return previa;
-            }
-            return [nueva, ...previa];
-        });
-        return resultados;
-    },[]); //cierra callback
 
-    const valor = useMemo (
-        () => {reservas,cargando,agregarReserva},[reservas,cargando,agregarReserva]
+
+        const existe = reservas.some((r) => r.id === nueva.id);
+
+        if (existe) {
+            return {
+                ok: false,
+                mensaje: 'Ya tienes una reserva para esta clase y horario.'
+            };
+        }
+        const reservasDeLaClase = reservas.filter(
+            (reserva) =>
+                obtenerIdClaseReserva(reserva) === String(clase.id)
+        );
+
+        if (reservasDeLaClase.length >= clase.cupos) {
+            return {
+                ok: false,
+                mensaje: 'Lo sentimos, esta clase ya no tiene cupos disponibles.'
+            };
+        }
+
+        const intervaloNuevo = obtenerIntervalo(
+            horario,
+            clase.duracion
+        );
+
+        const hayReservaCruzada = reservas.some((r) => {
+            const intervaloExistente = obtenerIntervalo(
+                r.horario,
+                r.duracion
+            );
+
+            return hayCruce(intervaloNuevo, intervaloExistente);
+        });
+
+        if (hayReservaCruzada) {
+            return {
+                ok: false,
+                mensaje: 'Ya tienes una reserva que se cruza con este horario.'
+            };
+        }
+
+        setReservas((previa) => [nueva, ...previa]);
+
+        return {
+            ok: true
+        };
+    }, [reservas]);
+
+    const cancelarReserva = useCallback((idReserva) => {
+        setReservas((previas) =>
+            previas.filter((reserva) => reserva.id !== idReserva)
+        );
+    }, []);
+
+    const valor = useMemo(
+        () => ({
+            reservas,
+            cargando,
+            agregarReserva,
+            cancelarReserva
+        }),
+        [reservas, cargando, agregarReserva, cancelarReserva]
 
     );
-    return <ReservaContext.Provider value={valor}>{children} </ReservaContext.Provider>
+    return <ReservaContext.Provider value={valor}>{children}</ReservaContext.Provider>
 }//cierre de funcion provider
+

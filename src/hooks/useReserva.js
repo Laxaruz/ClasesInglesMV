@@ -1,5 +1,5 @@
 import {useContext} from 'react';
-import {ReservaContext} from '../context/ReservaContext';
+import {ReservaContext} from '../contexts/ReservasContext';
 
 export default function useReserva(){
     const contexto = useContext(ReservaContext);
