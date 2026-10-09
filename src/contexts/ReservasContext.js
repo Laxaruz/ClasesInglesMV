@@ -48,7 +48,9 @@ function hayCruce(intervaloNuevo, intervaloExistente) {
 }
 
 //NUEVAS FUNCIONES, ESTAS FUNCIONES SON PARA VALIDAR QUE NO SE PUEDAN RESERVAR CLASES QUE SE CRUCEN EN HORARIO
-
+function obtenerIdClaseReserva(reserva) {
+    return String(reserva.claseId ?? reserva.id.split('-')[0]);
+}
 
 export const ReservaContext = createContext(null);
 
@@ -88,6 +90,7 @@ export function ReservaProvider({children}) {
     const agregarReserva = useCallback((clase, horario) => {
         const nueva = {
             id: clase.id + '-' + horario,
+            claseId: clase.id,
             titulo: clase.titulo,
             nivel: clase.nivel,
             profesor: clase.profesor.nombre,
@@ -104,6 +107,17 @@ export function ReservaProvider({children}) {
             return {
                 ok: false,
                 mensaje: 'Ya tienes una reserva para esta clase y horario.'
+            };
+        }
+        const reservasDeLaClase = reservas.filter(
+            (reserva) =>
+                obtenerIdClaseReserva(reserva) === String(clase.id)
+        );
+
+        if (reservasDeLaClase.length >= clase.cupos) {
+            return {
+                ok: false,
+                mensaje: 'Lo sentimos, esta clase ya no tiene cupos disponibles.'
             };
         }
 

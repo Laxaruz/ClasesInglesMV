@@ -12,12 +12,33 @@ export default function DetalleClaseScreen({ route, navigation }) {
     const insets = useSafeAreaInsets();
     const { clase } = route.params;
     const { isTablet } = useResponsive();
-    const { agregarReserva } = useReserva();
-    const [cuposDisponibles, setCuposDisponibles] = useState(clase.cupos);
+    const { agregarReserva, reservas, cargando } = useReserva();
     const [horarioSeleccionado, setHorarioSeleccionado] = useState(null);
+
+    const reservasDeLaClase = useMemo(
+        () =>
+            reservas.filter(
+                (reserva) =>
+                    String(reserva.claseId ?? reserva.id.split('-')[0]) ===
+                    String(clase.id)
+            ).length,
+        [reservas, clase.id]
+    );
+
+    const cuposDisponibles = Math.max(
+        0,
+        clase.cupos - reservasDeLaClase
+    );
 
 
     const handleReservar = () => {
+        if (cargando) {
+            Alert.alert(
+                'Cargando información',
+                'Espera un momento mientras verificamos los cupos disponibles.'
+            );
+            return;
+        }
         if (!horarioSeleccionado) {
             Alert.alert(
                 'Selecciona un horario',
@@ -50,8 +71,6 @@ export default function DetalleClaseScreen({ route, navigation }) {
                             );
                             return;
                         }
-
-                        setCuposDisponibles((prevCupos) => prevCupos - 1);
 
                         Alert.alert(
                             '¡Reserva Exitosa!',
