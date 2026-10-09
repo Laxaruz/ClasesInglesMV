@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {Alert, View, Text, Pressable, StyleSheet, ScrollView, TextInput, Image,} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { color, radius, spacing, typography } from '../theme';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const CLAVE_PERFIL = '@perfil_ingles'
 
 export default function PerfilScreen() {
     const [perfiles, setPerfiles] = useState([]);
@@ -12,6 +15,33 @@ export default function PerfilScreen() {
     const [telefono, setTelefono] = useState('');
     const [foto, setFoto] = useState(null);
     const [editandoPerfil, setEditandoPerfil] = useState(false);
+    const [cargandoPerfil, setCargandoPerfil] = useState(true);
+
+    useEffect(() => {
+        const cargarPerfil = async () => {
+            try {
+                const perfilGuardado = await AsyncStorage.getItem(CLAVE_PERFIL);
+
+                if (perfilGuardado !== null) {
+                    setPerfiles(JSON.parse(perfilGuardado));
+                }
+            } catch (error) {
+                console.log('Error leyendo el perfil', error);
+            } finally {
+                setCargandoPerfil(false);
+            }
+        }
+
+        cargarPerfil();
+    },[]);
+
+    useEffect(() => {
+        if (cargandoPerfil) return;
+
+        AsyncStorage.setItem(CLAVE_PERFIL, JSON.stringify(perfiles)).catch((error) =>
+            console.log('Error guardando el perfil:', error)
+        );
+    }, [perfiles, cargandoPerfil]);
 
     const hayPerfil = perfiles.length > 0;
     const perfil = perfiles[0];
@@ -61,7 +91,9 @@ export default function PerfilScreen() {
 
     return (
         <View style={styles.pantalla}>
-            {hayPerfil ? (
+            {cargandoPerfil ? (
+                <Text style={typography.subtitulo}>Cargando perfil...</Text>
+            ) : hayPerfil ? (
                 <ScrollView
                     style={styles.formulario}
                     contentContainerStyle={styles.contenido}
